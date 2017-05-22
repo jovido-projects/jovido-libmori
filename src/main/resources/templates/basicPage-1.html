@@ -1,0 +1,7 @@
+<html xmlns:th="//www.thymeleaf.org"
+      th:replace="/page2(content=~{::body})"
+      th:remove="tag">
+<div th:fragment="body" class="container">
+    <h1>Juhu <small th:text="${title.value}">#</small> </h1>
+</div>
+</html>
