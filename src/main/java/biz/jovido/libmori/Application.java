@@ -1,16 +1,17 @@
 package biz.jovido.libmori;
 
-import biz.jovido.seed.EnableSeed;
-import biz.jovido.seed.content.Structure;
-import biz.jovido.seed.content.StructureService;
-import biz.jovido.seed.content.field.AssetField;
-import biz.jovido.seed.content.field.FragmentField;
-import biz.jovido.seed.content.field.TextField;
+import biz.jovido.seed.configuration.EnableSeed;
+import biz.jovido.seed.configuration.WebSecurityConfiguration;
+import biz.jovido.seed.content.Configurer;
+import biz.jovido.seed.content.HierarchyService;
+import biz.jovido.seed.content.TypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Import;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -23,6 +24,8 @@ import javax.annotation.PostConstruct;
  */
 @EnableSeed
 @SpringBootApplication
+@EntityScan("biz.jovido.libmori.content")
+@Import(WebSecurityConfiguration.class)
 public class Application {
 
     public static void main(String[] args) {
@@ -34,6 +37,41 @@ public class Application {
     @Autowired
     private ApplicationContext applicationContext;
 
+    private void prepare() {
+
+        HierarchyService hierarchyService = applicationContext.getBean(HierarchyService.class);
+        TypeService typeService = applicationContext.getBean(TypeService.class);
+
+        new Configurer(hierarchyService, typeService)
+                .forHierarchy("primaryMenu")
+                .forHierarchy("secondaryMenu")
+                .forType("basicPage", 1).setPublishable(true)
+                    .addTextAttribute("title")
+                        .setRequired(1).setCapacity(1)
+                    .addTextAttribute("text")
+                        .setRequired(1).setCapacity(1)
+                        .setMultiline(true)
+                    .addTextAttribute("furtherLinks")
+                        .setRequired(0).setCapacity(3)
+                    .addTextAttribute("keyword")
+                        .setCapacity(5).setRequired(1)
+                    .addImageAttribute("preview").setRequired(1)
+                .forType("textOnlySection", 1)
+                    .addTextAttribute("text")
+                        .setRequired(1)
+                        .setMultiline(true)
+                    .addTextAttribute("note")
+                    .addImageAttribute("bla")
+                .forType("sectionsPage", 1).setPublishable(true)
+                    .addTextAttribute("title")
+                        .setRequired(1)
+                    .addItemAttribute("sections")
+                        .addAcceptedType("textOnlySection")
+//                        .addAcceptedHierarchy("mainMenu")
+                .apply();
+
+    }
+
     @PostConstruct
     void init() {
         PlatformTransactionManager transactionManager = applicationContext
@@ -42,26 +80,8 @@ public class Application {
         transactionTemplate.execute((TransactionStatus status) -> {
 
             try {
-                StructureService structureService = applicationContext.getBean(StructureService.class);
-                Structure basicPage = new Structure("basicPage");
-                basicPage.setLabel("title");
-
-                TextField titleField = new TextField("title");
-                titleField.setCapacity(1);
-                basicPage.putField(titleField);
-
-                TextField textField = new TextField("text");
-                textField.setRows(6);
-                basicPage.putField(textField);
-
-                FragmentField otherField = new FragmentField("other");
-                basicPage.putField(otherField);
-
-                AssetField imageField = new AssetField("image");
-                basicPage.putField(imageField);
-
-                structureService.registerStructure(basicPage);
-
+                prepare();
+                status.flush();
             } catch (Exception e) {
                 status.setRollbackOnly();
                 throw new RuntimeException(e);

@@ -1,7 +1,13 @@
-<html xmlns:th="//www.thymeleaf.org"
-      th:replace="/page2(content=~{::body})"
-      th:remove="tag">
-<div th:fragment="body" class="container">
-    <h1>Juhu <small th:text="${title.value}">#</small> </h1>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+[[${title[0]}]]
+
+
+<img th:src="@{/asset(uuid=${preview[0].uuid})}" class="img-responsive img-thumbnail">
+</body>
 </html>
