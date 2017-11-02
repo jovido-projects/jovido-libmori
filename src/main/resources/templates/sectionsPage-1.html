@@ -33,7 +33,7 @@
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
                 <li th:each="node : ${branch.roots}" th:class="${node.belongsTo(_item)}? active : _">
-                    <a th:href="@{/item(leaf=${node.leaf.id})}" >
+                    <a href="#" >
                         [[${node.leaf.current.label}]]
                     </a>
                 </li>

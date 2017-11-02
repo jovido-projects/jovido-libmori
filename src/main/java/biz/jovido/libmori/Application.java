@@ -4,7 +4,7 @@ import biz.jovido.seed.configuration.EnableSeed;
 import biz.jovido.seed.configuration.WebSecurityConfiguration;
 import biz.jovido.seed.content.Configurer;
 import biz.jovido.seed.content.HierarchyService;
-import biz.jovido.seed.content.TypeService;
+import biz.jovido.seed.content.StructureService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -40,12 +40,12 @@ public class Application {
     private void prepare() {
 
         HierarchyService hierarchyService = applicationContext.getBean(HierarchyService.class);
-        TypeService typeService = applicationContext.getBean(TypeService.class);
+        StructureService structureService = applicationContext.getBean(StructureService.class);
 
-        new Configurer(hierarchyService, typeService)
-                .forHierarchy("primaryMenu")
-                .forHierarchy("secondaryMenu")
-                .forType("basicPage", 1).setPublishable(true)
+        new Configurer(hierarchyService, structureService)
+//                .createHierarchy("primaryMenu")
+                .createHierarchy("secondaryMenu")
+                .createStructure("basicPage").setPublishable(true)
                     .addTextAttribute("title")
                         .setRequired(1).setCapacity(1)
                     .addTextAttribute("text")
@@ -56,17 +56,17 @@ public class Application {
                     .addTextAttribute("keyword")
                         .setCapacity(5).setRequired(1)
                     .addImageAttribute("preview").setRequired(1)
-                .forType("textOnlySection", 1)
+                .createStructure("textOnlySection")
                     .addTextAttribute("text")
                         .setRequired(1)
                         .setMultiline(true)
                     .addTextAttribute("note")
                     .addImageAttribute("bla")
-                .forType("sectionsPage", 1).setPublishable(true)
+                .createStructure("sectionsPage").setPublishable(true)
                     .addTextAttribute("title")
                         .setRequired(1)
                     .addItemAttribute("sections")
-                        .addAcceptedType("textOnlySection")
+                        .addAcceptedStructure("textOnlySection")
 //                        .addAcceptedHierarchy("mainMenu")
                 .apply();
 
